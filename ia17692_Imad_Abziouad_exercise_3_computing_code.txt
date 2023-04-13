@@ -1,0 +1,356 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan 21 16:55:01 2019
+
+@author: Imad
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+print( )
+print( )
+print ("Hello! Welcome to the Death Drop Simulator. Sit tight!")
+
+MyInput = '0'
+while MyInput != 'q':
+    
+    print ("Please enter a choice:")
+    print( )
+    print ("'a' for a test of the Euler method,")
+    print( )
+    print ("'b' to verify the Euler method analytically,")
+    print( )
+    print ("'c' for the modified and improved Euler method,")
+    print( )
+    print ("'d' for Baumgartner's fall using a varying and more realistic drag,")
+    print( )
+    print ("'e' to enter your own values (smarty pants!),")
+    print( )
+    print("'f' for a surprise (do this last),")
+    print ()
+    print ("or 'q' to quit:")
+    print( )
+
+    MyInput = input()
+    
+# Part a, Test fall at 1km using Euler method
+
+    if MyInput == 'a':
+        print('You have chosen part a, a fine choice!')
+        print ("Here is a quick test of the Euler method:")
+        # inittialising the loop values, lists and defining constants
+        t = 0
+        y = 1000
+        v = 0.0
+        dt = 0.01
+        
+        ylist = []
+        xlist = []
+        zlist = []
+        
+        while y > 0: # creating a loop to find the change in velocity and displacement wrt. time
+            
+            dv = v - dt*(9.81 + 0.0089*abs(v)*v)
+            
+            t += dt # a loop that keeps add the timestep dt to the old time
+            y += (dt*v)  #  a loop that decreases the height of the object give the velocity
+            v = dv # ensuring old velocity becomes new velocity to find the change 
+            
+            # adding all of the values for each new step to the end of a list for graphing
+            xlist.append(t) # values of time in a list
+            ylist.append(-v) #values of velocity in a list, -ve so that it 
+            # shows up as +ve velocity, since falling objects have -ve velocity wrt. +ve gravity
+            zlist.append(y) # values of position in a list
+        
+        # printing the drop duration, and graphing the displacement and velocity with time
+        print( )
+        print( )
+        print('Duration of fall was:')
+        print(t)
+        print('seconds.' )
+        
+        plt.title('Velocity-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (m/s)')
+        plt.plot(xlist,ylist, '-r')
+        plt.show()
+        
+        
+        plt.title('Displacement-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Displacement (m)')
+        plt.plot(xlist,zlist, '-g')
+        plt.show()
+        
+        print( )
+        print( )
+        continue
+# Part b, verifying Euler method analytically
+    elif MyInput == 'b':
+        print('You have chosen part b, fascinating!')
+        print ("Below is an analytical result of the jump")
+        print ("to verify Euler's method:")
+        # initialising loop values, lists and defining constants
+        dy = 0
+        dv = 0
+        y = 0
+        v = 0
+        t = 0
+        M = 0
+        dt = 0.01
+        y0 = 1000
+        xlist = []
+        ylist = []
+        zlist = []
+        y = y0
+        m = 70.0
+        k = 0.62
+        g = 9.81
+        
+        while y > 0: # loop for plotting analytical drop motion against different values of time t
+
+            M = t*np.sqrt((k*g)/m)
+            
+            y = y0 - (m/k)*np.log(np.cosh(M))
+        
+            v = - np.sqrt((m*g)/k)*np.tanh(M)
+            
+            t += dt
+            
+            # adding the velocity values, time values and position values into their lists for plotting
+            xlist.append(t)
+            ylist.append(-v)
+            zlist.append(y)
+            
+        # plotting the velocity ad displacement graphs
+        print( )
+        print('Duration of fall was:')
+        print(t)
+        print('seconds.' )
+        
+        plt.title('Velocity-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (m/s)')
+        plt.plot(xlist,ylist, '-b')
+        plt.show()
+        
+        plt.title('Displacement-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Displacement (m)')
+        plt.plot(xlist,zlist, '-g')
+        plt.show()
+        print( )
+        print( )
+        continue
+# Part c, modified Euler method code
+    elif MyInput == 'c':
+        print('You have chosen part c, excellent! ')
+        print ("This is what the modified Euler method results in:")
+        
+        
+        def f(dt,v): # defining a function for the velocity of the drop
+            
+            dv = v - dt*(9.81 + 0.0089*abs(v)*v)
+            return dv
+        
+        # initialising the loops and lists, and defining constants
+        t = 0
+        y = 1000
+        v = 0.0
+        dt = 0.01
+        
+        ylist = []
+        xlist = []
+        zlist = []
+        
+        while y > 0: # creating a loop to find the midpoint of each velocity value
+             
+            tmid = dt/2 # midpoit of each timestep
+            vmid = f(tmid,v) # resulting midpoint of each velocity
+            y += (dt*vmid) # midpoint of each drop step 
+            
+            dv = f(dt,vmid) # equation that uses the velocity midpoint to create accurate velocity values
+            t += dt # ensuring the time keeps increasing for the loop
+            v = dv # using the old velocity as the new velocity to find the next value
+            
+            # adding all of the values to their respective lists for plotting
+            xlist.append(t)
+            ylist.append(-v)
+            zlist.append(y)
+            
+        # printing the graphs
+        print( )
+        print('Duration of fall was:')
+        print(t)
+        print('seconds.' )
+        
+        plt.title('Velocity-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (m/s)')
+        plt.plot(xlist,ylist, '-b')
+        plt.show()
+        print( )
+        plt.title('Displacement-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Displacement (m)')
+        plt.plot(xlist,zlist, '-g')
+        plt.show()
+        print( )
+        print( )
+        print('The unmodified Euler method had a 0.226% error compared to this method!')
+        print( )
+        continue
+# Part d, modified Euler with density as a function of height
+    elif MyInput == 'd':
+        print('You have chosen part d, very interesting...')
+        print ("This is what a more realistic drag looks like:")
+        
+        def k(y): # Equation for finding k for a non-constant exponential drag force that varies with height
+            
+            K = (Cd*rho0*np.exp(-y/7640)*A)/2
+            return K
+        
+        rho0 = 1.2
+        Cd = 1.15
+        A = 0.62
+        
+        def f(dt,v): # equation using the mid point of each step to find velocity
+            
+            dv = v - dt*(9.81 + (k(y)/70)*abs(v)*v)
+            return dv
+        # initialising lists and loop values
+        t = 0
+        y = 39045
+        v = 0.0
+        dt = 0.01
+        
+        ylist = []
+        xlist = []
+        zlist = []
+        alist = []
+        while y > 0: # a loop to find the mid point of each step
+             
+            tmid = dt/2
+            vmid = f(tmid,v)
+            y += (dt*vmid)
+            
+            dv = f(dt,vmid)
+            t += dt
+            v = dv
+            z = 331.3 + 0.66*(-131.21+0.00299*y) # a general speed of sound equation I derived
+            
+            xlist.append(t)
+            ylist.append(-v)
+            zlist.append(y)
+            alist.append(z)
+        # plotting the two graphs 
+        print( )
+        print('Duration of fall was:')
+        print(t)
+        print('seconds' )
+        
+        plt.xlim([0, 310]) #making sure scales of graph are right
+        plt.ylim([0, 370])
+        plt.title('Velocity-time/speed of sound graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (m/s)')
+        plt.plot(xlist,ylist, xlist, alist) 
+        plt.show()
+        print('Velocity in blue, speed of sound in red.')
+        print('Baumgartner Breaks the speed barrier! Woohoo!')
+        plt.title('Displacement-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Displacement (m) ')
+        plt.plot(xlist,zlist, '-g')
+        plt.show()
+        print( )
+        print( )
+        
+
+        continue
+# Part e, a customisable drop calculator using modified Euler      
+
+    elif MyInput == 'e':
+        print('You have chosen part e, brave!')
+        print ("You can now enter your own values,")
+        print('Please stick to SI units:')
+
+        def k(x): # defining a function for a non-constant drag
+            
+            K = (Cd*rho0*np.exp(-x/7640)*A)/2
+            return K
+
+        def f(dt,v): # defining the function to use middle of time step dt
+            
+            dv = v - dt*(9.81 + (k(x)/m)*abs(v)*v)
+            return dv
+        # entering customised values
+        t = 0
+        Input_z = input('Enter distance of fall: ')
+        x = float(Input_z)
+        Input_L = input('Enter starting velocity: ')
+        v = float(Input_L)
+        Input_N = input('Enter size of time step (smaller e.g 0.01 is more accurate): ')
+        dt = float(Input_N)
+        Input_T = input('Enter surface area of falling object (a person is about 0.8): ')
+        A = float(Input_T)
+        Input_M = input('Enter weight of falling object: ')
+        m = float(Input_M)
+        # initialiing and setting values
+        rho0 = 1.2
+        Cd = 1.15
+        ylist = []
+        xlist = []
+        zlist = []
+         
+        while x > 0: # loop to find the midpoint of each step of calculation 
+             
+            tmid = dt/2
+            vmid = f(tmid,v)
+            x += (dt*vmid)
+            
+            dv = f(dt,vmid)
+            t += dt
+            v = dv
+            
+            # adding the values to a list to be plotted
+            xlist.append(t)
+            ylist.append(-v)
+            zlist.append(x)
+            
+        # plotting the graphs
+        print( )
+        print('Duration of fall was:')
+        print(t)
+        print('seconds.' )
+        plt.title('Velocity-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Velocity (m/s)')
+        plt.plot(xlist,ylist, '-b')
+        plt.show()
+        print( )
+        plt.title('Displacement-time graph')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Displacement (m)')
+        plt.plot(xlist,zlist, '-r')
+        plt.show()
+        print ( )
+        print( )
+    elif MyInput == 'f':
+        print("Please wait a second")
+        print()
+        import socket
+        addr_info = socket.getaddrinfo("towel.blinkenlights.nl", 23)
+        addr = addr_info[0][-1]
+        s = socket.socket()
+        s.connect(addr)
+        while True:
+            data = s.recv(500)
+            print(str(data, 'utf8'), end='')
+        continue
+        
+    elif MyInput != 'q':
+        print('This is not a valid choice')
+        continue
+
+print('You have chosen to finish - good day!')
